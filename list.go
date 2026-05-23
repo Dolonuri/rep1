@@ -171,9 +171,9 @@ func main() {
 
 	list.Print() // a 2 false
 
-	list.Prepend(2) //Добавляем 2 в начало списка
+	list.Prepend("dolonuri") //Добавляем 2 в начало списка
 
-	list.Print() // 2 a 2 false
+	list.Print() // dolonuri a 2 false
 
 	list.RemoveHead() //Удаляем элемент в начале списка
 	list.RemoveTail() //Удаляем элемент в конце списка
