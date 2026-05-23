@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 type Node struct {
-	Value int
+	Value any
 	Next  *Node
 	Prev  *Node
 }
@@ -13,7 +13,7 @@ type DoubleLinkedList struct {
 	Tail *Node
 }
 
-func NewDoubleLinkedList(value int) *DoubleLinkedList {
+func NewDoubleLinkedList(value any) *DoubleLinkedList {
 	node := &Node{Value: value}
 	return &DoubleLinkedList{
 		Head: node,
@@ -22,7 +22,7 @@ func NewDoubleLinkedList(value int) *DoubleLinkedList {
 }
 
 // Append - элемент в конец
-func (list *DoubleLinkedList) Append(value int) {
+func (list *DoubleLinkedList) Append(value any) {
 	newNode := &Node{Value: value}
 	if list.Head == nil { //если список пуст
 		list.Head = newNode
@@ -35,7 +35,7 @@ func (list *DoubleLinkedList) Append(value int) {
 }
 
 // Prepend - элемент в начало списка
-func (list *DoubleLinkedList) Prepend(value int) {
+func (list *DoubleLinkedList) Prepend(value any) {
 	newNode := &Node{Value: value}
 	if list.Head == nil {
 		list.Head = newNode
@@ -79,6 +79,69 @@ func (list *DoubleLinkedList) RemoveTail() {
 	}
 }
 
+//AddAfterIndex - добавление нового элемента после определенного
+func (list *DoubleLinkedList) AddAfterIndex(value any, index int) {
+	newNode := &Node{Value: value}
+
+	if list.Head == nil { //ошибка, если список пуст
+		fmt.Print("Error!")
+	}
+
+	current := list.Head //стартовая позиция
+	position := 0
+
+	for current != nil && position < index { //поиск по индексу, начиная от Head = 0
+		current = current.Next
+		position++
+	}
+
+	if current == list.Tail { //если элемент - хвост, то просто Append
+		current.Next = newNode
+		newNode.Prev = current
+		list.Tail = newNode
+	} else {
+		nextNode := current.Next //сохраняем адрес следующего после current элемента
+		newNode.Next = nextNode  //связываем новый узел со следующим элементом
+		newNode.Prev = current   //связываем новый узел с предыдущим элементом
+		current.Next = newNode   //связываем следующий элемент с новым узлом
+		nextNode.Prev = newNode  //связываем предыдущий элемент с новым узлом
+	}
+}
+
+//RemoveAfterIndex - удалить элемент идущий после определенного
+func (list *DoubleLinkedList) RemoveAfterIndex(index int) {
+
+	if list.Head == nil { //ошибка, если список пуст
+		fmt.Print("Error!")
+	}
+
+	current := list.Head //стартовая позиция
+	position := 0
+
+	for current != nil && position < index { //поиск по индексу, начиная от Head = 0
+		current = current.Next
+		position++
+	}
+
+	if current.Next == nil { //если сказали удалить элемент после хвоста
+		fmt.Print("Error! Nothing to delete")
+	}
+
+	nodeToDelete := current.Next //сохраняем ссылку на удаляемый элемент
+
+	// Перенастраиваем указатели
+	current.Next = nodeToDelete.Next
+
+	if nodeToDelete.Next != nil {
+		// Если есть узел после удаляемого, обновляем его Prev
+		nodeToDelete.Next.Prev = current
+	} else {
+		// Если удаляем последний элемент (Tail), обновляем Tail
+		list.Tail = current
+	}
+
+}
+
 // Print - для проверки (выводит список)
 func (list *DoubleLinkedList) Print() {
 	if list.Head == nil {
@@ -102,18 +165,24 @@ func (list *DoubleLinkedList) Print() {
 func main() {
 	list := &DoubleLinkedList{} //Создаем список
 
-	list.Append(3) //добавляем в конец 3, 2 и 1
+	list.Append("a") //добавляем в конец a, 2 и false
 	list.Append(2)
-	list.Append(1)
+	list.Append(false)
 
-	list.Print() // 3 2 1
+	list.Print() // a 2 false
 
 	list.Prepend(2) //Добавляем 2 в начало списка
 
-	list.Print() // 2 3 2 1
+	list.Print() // 2 a 2 false
 
 	list.RemoveHead() //Удаляем элемент в начале списка
 	list.RemoveTail() //Удаляем элемент в конце списка
 
-	list.Print() // 3 2
+	list.AddAfterIndex(15, 0)
+
+	list.Print() // a 15 2
+
+	list.RemoveAfterIndex(1)
+
+	list.Print() // a 15
 }
